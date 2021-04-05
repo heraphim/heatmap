@@ -23,37 +23,7 @@ use Faker\Generator as Faker;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-Route::get('links', function() {
-    $links = Link::all();
-    $faker = \Faker\Factory::create();
-    $types = ['product', 'category', 'static-page', 'checkout', 'homepage'];
-    foreach ($types as $type) {
-        $params = [];
-        if(rand(1, 10) > 2) {
-            $params['start_date'] = $faker->dateTimeBetween($startDate = '-30 days', $endDate = 'now', $timezone = null)->format('Y-m-d H:i:s');
-        }
-        if(rand(1, 10) > 2) {
-            $initial = !empty($params['start_date']) ? $params['start_date'] : '-30 days';
-            $params['end_date'] = $faker->dateTimeBetween($initial, 'now', $timezone = null)->format('Y-m-d H:i:s');
-        }
-        $urlParams = http_build_query($params);
-        echo '<a href="http://localhost/heatmap/public/api/link_types/hits/' . $type . '?'. $urlParams . '">' . $type . ' | ' . (isset($params['start_date']) ? $params['start_date'] : 'none' ) . ' - ' .  (isset($params['end_date']) ? $params['end_date'] : 'none' ) . '</a><br>';
-    }
-    foreach ($links as $link) {
-        $params = [
-            'link' => $link->url,
-        ];
-        if(rand(1, 10) > 2) {
-            $params['start_date'] = $faker->dateTimeBetween($startDate = '-30 days', $endDate = 'now', $timezone = null)->format('Y-m-d H:i:s');
-        }
-        if(rand(1, 10) > 2) {
-            $initial = !empty($params['start_date']) ? $params['start_date'] : '-30 days';
-            $params['end_date'] = $faker->dateTimeBetween($initial, 'now', $timezone = null)->format('Y-m-d H:i:s');
-        }
-        $urlParams = http_build_query($params);
-        echo '<a href="http://localhost/heatmap/public/api/links/hits?' . $urlParams . '">' . $link->type . ' | ' . (isset($params['start_date']) ? $params['start_date'] : 'none' ) . ' - ' .  (isset($params['end_date']) ? $params['end_date'] : 'none' ) . '</a><br>';
-    }
-});
+
 
 Route::get('journey/{customer_id}', function(Request $request, $customer_id) {
     $visits = Visit::where('customer_id', $customer_id)->orderBy('timestamp', 'ASC')->get(['link_id', 'timestamp']);
