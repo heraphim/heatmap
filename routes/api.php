@@ -24,7 +24,6 @@ use Faker\Generator as Faker;
 //     return $request->user();
 // });
 
-
 Route::get('journey/{customer_id}', function(Request $request, $customer_id) {
     $visits = Visit::where('customer_id', $customer_id)->orderBy('timestamp', 'ASC')->get(['link_id', 'timestamp']);
     $flatJourney = implode(',', $visits->pluck('link_id')->flatten()->toArray());
@@ -40,7 +39,7 @@ Route::get('journey/{customer_id}', function(Request $request, $customer_id) {
     return [
         'customer_id' => $customer_id,
         'journey' => $visits,
-        'identic_journeys' => Arr::pluck($query, 'customer_id')
+        'identical_journeys' => Arr::pluck($query, 'customer_id')
     ];
 });
 Route::get('link_types/hits/{type}', [HitsController::class, 'linkTypes'])->name('links_types.hits');

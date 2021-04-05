@@ -1,62 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## Instructions:
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+1: clone this repository
+2: generate the `.env` file with the DB connection details
+3:  run `php artisan key:generate`
+4: migrate the DB structure with `php artisan migrate:refresh`
 
-## About Laravel
+## Notes
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+I made a lot of assumptions on how the requests would be formated and to save time I did not implement validation on the requests, I also didn't make any normalization on the url (removing GET parameters from the urls).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## API endpoints:
+#### /public/api/visits (POST): route to store visits
+POST fields:
+- link (encoded url of the page, e.g.: "%2Fclothing-sports-baby%2Fsynergistic-bronze-keyboard")
+- link_type (['homepage', 'static-page', 'product', 'category', 'checkout'])
+- customer_id (expecting integer)
+- timestamp (MySQL datetime format, e.g. "2021-03-26 12:52:47")
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### /public/api/links/hits/ (GET): get count of visits on a specific link
+Parameters:
+- link (encoded url of the page)
+- start_date (MySQL datetime format, e.g. "2021-03-26 12:52:47")
+- end_date (MySQL datetime format, e.g. "2021-03-26 12:52:47")
+The dates are optional, without any of them the result will contain all time visits or the query will be limited by only one of them
 
-## Learning Laravel
+Example response:
+`{
+"id": 9,
+"url": "/jewelry-games-clothing/awesome-rubber-plate",
+"type": "product",
+"visits_count": 9
+}`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### /public/api/link_types/hits/{type} (GET): get count of visits on a specific link type
+The `{type}` must be one of the possible page types (['homepage', 'static-page', 'product', 'category', 'checkout']).
+This endpoint accepts start_date and end_date the same as previous endpoint
 
-## Laravel Sponsors
+Example response:
+`{
+"type": "category",
+"visits_count": 102
+}`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+#### /public/api/journey/{customer_id} (GET): get specific customer "journey" and other customers with identical journeys
+`{customer_id}` must be the same format as in the visists POST endpoint
+This endpoint will return an array of links visited with their timestamps and an array of customer ids with identical journey.
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Example response:
+`{
+"customer_id": "11",
+"journey": [
+  {
+"link_id": 1,
+"timestamp": "2021-03-30 11:14:04"
+},
+  {
+"link_id": 2,
+"timestamp": "2021-03-31 09:37:43"
+},
+  {
+"link_id": 3,
+"timestamp": "2021-04-04 18:45:32"
+},
+  {
+"link_id": 4,
+"timestamp": "2021-04-04 22:28:24"
+},
+  {
+"link_id": 5,
+"timestamp": "2021-04-05 04:28:11"
+}
+],
+"identical_journeys": [
+  12,
+  13
+],
+}`
