@@ -1,9 +1,9 @@
 ## Instructions:
 
-1: clone this repository
-2: generate the `.env` file with the DB connection details
-3:  run `php artisan key:generate`
-4: migrate the DB structure with `php artisan migrate:refresh`
+- clone this repository
+- generate the `.env` file with the DB connection details
+- run `php artisan key:generate`
+- migrate the DB structure with `php artisan migrate:refresh`
 
 ## Notes
 
